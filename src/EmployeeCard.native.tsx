@@ -1,5 +1,5 @@
 /**
- * akong EmployeeCard · React Native 实现
+ * akong EmployeeCard · React Native 实现 (UX A 版)
  *
  * Metro bundler 默认按 `.native.tsx` 后缀解析 RN 端 · `.tsx` 解析 Web 端
  * 用方 `import { EmployeeCard } from '@aily-ui/employee-card'` 自动取对应平台
@@ -17,14 +17,16 @@ import {
   pickAvatarText,
   shouldRenderTts,
   shouldRenderScenarioTts,
+  shouldRenderPromises,
 } from './EmployeeCard.behavior'
 
 export function EmployeeCard(props: EmployeeCardProps) {
   const {
     intro,
     scenarios,
+    promises,
     onSelect,
-    onEdit,
+    onTry,
     disabled = false,
   } = props
 
@@ -35,6 +37,7 @@ export function EmployeeCard(props: EmployeeCardProps) {
   const [playing, setPlaying] = useState(false)
 
   const renderTts = shouldRenderTts(intro)
+  const renderPromises = shouldRenderPromises(promises)
   const avatarText = pickAvatarText(intro)
 
   const cardStyle = {
@@ -91,7 +94,7 @@ export function EmployeeCard(props: EmployeeCardProps) {
             <Text style={{ fontSize: 18, fontWeight: '600', color: t.fg }}>{avatarText}</Text>
           )}
         </View>
-        <View style={{ flex: 1, gap: 2 }}>
+        <View style={{ flex: 1, gap: 4 }}>
           <Text style={{ fontSize: 16, fontWeight: '600', color: t.fg }}>
             {intro.name}
             <Text style={{ fontSize: 12, fontWeight: '400', color: t.fgMuted }}>
@@ -99,7 +102,16 @@ export function EmployeeCard(props: EmployeeCardProps) {
               {intro.role}
             </Text>
           </Text>
-          <Text style={{ fontSize: 14, color: t.fgMuted, lineHeight: 20 }}>{intro.tagline}</Text>
+          <Text
+            style={{
+              fontSize: 14,
+              color: t.fgMuted,
+              lineHeight: 20,
+              fontStyle: 'italic',
+            }}
+          >
+            {`“${intro.tagline}”`}
+          </Text>
         </View>
       </View>
 
@@ -138,24 +150,30 @@ export function EmployeeCard(props: EmployeeCardProps) {
           <Text style={{ fontSize: 12, color: t.fgMuted, minWidth: 60, textAlign: 'right' }}>
             0:00 / 0:00
           </Text>
+          <Text style={{ fontSize: 12, color: t.fgMuted }}>听我自介</Text>
         </View>
       ) : null}
 
-      {/* scenarios */}
-      <View>
-        <Text style={{ fontSize: 12, color: t.fgMuted, marginBottom: 4 }}>真过往案例</Text>
-        <View style={{ gap: 6 }}>
-          {scenarios.map((sc: EmployeeCardScenario, i: number) => (
-            <View
-              key={i}
-              style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}
+      {/* scenarios · A 版 title + quote */}
+      <View style={{ gap: 10 }}>
+        {scenarios.map((sc: EmployeeCardScenario, i: number) => (
+          <View key={i} style={{ gap: 2 }}>
+            <Text
+              style={{ fontSize: 14, fontWeight: '600', color: t.fg, lineHeight: 20 }}
             >
-              <Text style={{ color: t.fgMuted, fontWeight: '600' }}>✓</Text>
-              <Text style={{ flex: 1, fontSize: 14, color: t.fg, lineHeight: 20 }}>
-                {sc.title}
-                {sc.bdd ? (
-                  <Text style={{ fontSize: 12, color: t.fgMuted }}> — {sc.bdd}</Text>
-                ) : null}
+              {sc.title}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text
+                style={{
+                  flex: 1,
+                  fontSize: 13,
+                  color: t.fgMuted,
+                  lineHeight: 20,
+                  fontStyle: 'italic',
+                }}
+              >
+                {`“${sc.quote}”`}
               </Text>
               {shouldRenderScenarioTts(sc) ? (
                 <Pressable
@@ -175,25 +193,46 @@ export function EmployeeCard(props: EmployeeCardProps) {
                 </Pressable>
               ) : null}
             </View>
-          ))}
-        </View>
+          </View>
+        ))}
       </View>
 
-      {/* actions · 选 / 改 (砍跳过) */}
+      {/* promises ("我不做") · 复用 scenario 视觉 */}
+      {renderPromises ? (
+        <View style={{ gap: 2 }}>
+          <Text
+            style={{ fontSize: 14, fontWeight: '600', color: t.fg, lineHeight: 20 }}
+          >
+            我不做
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: t.fgMuted,
+              lineHeight: 20,
+              fontStyle: 'italic',
+            }}
+          >
+            {`“${promises!.filter((p) => p && p.length > 0).join(' · ')}”`}
+          </Text>
+        </View>
+      ) : null}
+
+      {/* actions · [先聊 5 分钟] (左 · 白底) + [选 ta] (右 · 黑底) */}
       <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Pressable
+          onPress={onTry}
+          disabled={disabled || !onTry}
+          style={[btnBase, { opacity: disabled || !onTry ? 0.5 : 1 }]}
+        >
+          <Text style={{ color: t.fg, fontSize: 14, fontWeight: '500' }}>先聊 5 分钟</Text>
+        </Pressable>
         <Pressable
           onPress={onSelect}
           disabled={disabled || !onSelect}
           style={[btnPrimary, { opacity: disabled || !onSelect ? 0.5 : 1 }]}
         >
-          <Text style={{ color: t.fgInverse, fontSize: 14, fontWeight: '500' }}>选这个</Text>
-        </Pressable>
-        <Pressable
-          onPress={onEdit}
-          disabled={disabled || !onEdit}
-          style={[btnBase, { opacity: disabled || !onEdit ? 0.5 : 1 }]}
-        >
-          <Text style={{ color: t.fg, fontSize: 14, fontWeight: '500' }}>改改</Text>
+          <Text style={{ color: t.fgInverse, fontSize: 14, fontWeight: '500' }}>选 ta</Text>
         </Pressable>
       </View>
     </View>

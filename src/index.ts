@@ -8,6 +8,8 @@ export {
   validateScenarios,
   pickAvatarText,
   shouldRenderTts,
+  shouldRenderScenarioTts,
+  shouldRenderPromises,
   isActionEnabled,
   sampleProps,
 } from './EmployeeCard.behavior'
