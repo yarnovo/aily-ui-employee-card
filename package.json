@@ -1,0 +1,49 @@
+{
+  "name": "@aily-ui/employee-card",
+  "version": "0.1.0",
+  "description": "akong EmployeeCard · agent 员工求职简历卡片 · interviewer 真挑选员工时真渲 · 跨端 (Web + RN)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./src/index.native.ts",
+      "default": "./src/index.ts"
+    },
+    "./style.css": "./src/EmployeeCard.css"
+  },
+  "files": ["src", "README.md"],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "@aily-ui/tokens": "*"
+  },
+  "peerDependenciesMeta": {
+    "react-native": { "optional": true }
+  },
+  "devDependencies": {
+    "@aily-ui/tokens": "github:yarnovo/aily-ui-tokens",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.14",
+    "@vitest/coverage-v8": "^4.1.5",
+    "jsdom": "^29.1.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-native": "^0.85.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "publishConfig": { "access": "public" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yarnovo/aily-ui-employee-card.git"
+  },
+  "license": "UNLICENSED",
+  "private": false
+}

@@ -1,0 +1,62 @@
+/**
+ * EmployeeCard · 跨端行为契约 · Web + RN 都遵循
+ *
+ * 把"给定 props · 期望渲染 / 触发什么"的纯描述抽出来 ·
+ * 各端测试 import 跑同一份 spec · 行为强一致。
+ */
+
+import type { EmployeeCardProps } from './EmployeeCard.types'
+
+/** TTS player 状态 (内部 state · 测试用) */
+export type TtsPlayState = 'idle' | 'playing'
+
+/** props validation: 至少 1 条 scenario · 不超过 3 条 (产品规约) */
+export function validateScenarios(scenarios: EmployeeCardProps['scenarios']): {
+  ok: boolean
+  reason?: string
+} {
+  if (!scenarios || scenarios.length === 0) return { ok: false, reason: 'scenarios 不能为空' }
+  if (scenarios.length > 3) return { ok: false, reason: 'scenarios 最多 3 条' }
+  return { ok: true }
+}
+
+/** 头像渲染选择: 有 url 用 url · 否则用 avatar_text · 都没就 name 第 1 字 */
+export function pickAvatarText(intro: EmployeeCardProps['intro']): string {
+  if (intro.avatar_text && intro.avatar_text.length > 0) return intro.avatar_text
+  if (intro.name && intro.name.length > 0) {
+    // 取最后 1 字 · 中文名 "阿空小研" → "研" (skip "阿空" 前缀)
+    return intro.name.slice(-1)
+  }
+  return '?'
+}
+
+/** TTS player 是否真渲 · intro.tts_audio_url 存在才渲 */
+export function shouldRenderTts(intro: EmployeeCardProps['intro']): boolean {
+  return !!intro.tts_audio_url && intro.tts_audio_url.length > 0
+}
+
+/** 按钮可用性 · disabled prop + handler 是否提供 */
+export function isActionEnabled(
+  handler: (() => void) | undefined,
+  disabled?: boolean
+): boolean {
+  return !!handler && !disabled
+}
+
+/** 测试 fixture · 标准案例 */
+export const sampleProps: EmployeeCardProps = {
+  intro: {
+    slug: 'xiaoyan',
+    name: '阿空小研',
+    role: 'user_researcher',
+    tagline: '真懂消费品 · 真挖真痛',
+    avatar_text: '研',
+    tts_audio_url: 'https://example.com/xiaoyan-intro.mp3',
+  },
+  scenarios: [
+    { title: '真聊 30 个真用户 · 真给 5 条真洞察' },
+    { title: '真按 Mom Test · 不堆 ChatGPT 套话' },
+    { title: '真情绪 capture · sigh / curse 都记' },
+  ],
+  pricing_hint: '¥800/月 · 真含 80 真聊',
+}
