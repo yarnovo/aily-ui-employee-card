@@ -28,6 +28,8 @@ export interface EmployeeCardScenario {
   title: string
   /** BDD 简短描述 · ≤ 50 字 · 可选 */
   bdd?: string
+  /** 真 TTS mp3 url · 单条案例真自介音频 · 不在 props 里就不渲 mini player */
+  tts_audio_url?: string
 }
 
 /** EmployeeCard Props · 跨端共用 (Web + RN 同 shape) */
@@ -36,13 +38,9 @@ export interface EmployeeCardProps {
   intro: EmployeeCardIntro
   /** 1-3 条真过往案例 (scenarios) */
   scenarios: EmployeeCardScenario[]
-  /** 定价 hint · 例 "¥800/月 · 真含 80 真聊" */
-  pricing_hint: string
 
   /** 真用户真选这个员工 · 闭单触发 */
   onSelect?: () => void
-  /** 真用户真跳过这个员工 (看下一个候选) */
-  onSkip?: () => void
   /** 真用户真改改 prompt 重新生成 (老板真不喜欢这个 default) */
   onEdit?: () => void
 

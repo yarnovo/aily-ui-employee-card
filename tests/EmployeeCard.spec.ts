@@ -1,14 +1,17 @@
 /**
  * Web 端组件测试 · vitest + @testing-library/react
  *
- * 覆盖 acceptance #3 (≥ 6 case):
- * - 渲染 props (name / role / tagline / pricing / scenarios)
- * - onSelect / onSkip / onEdit 触发
- * - TTS player 渲 (intro.tts_audio_url 存在时)
- * - TTS 不渲 (intro.tts_audio_url 不存在时)
- * - TTS play 切换 (▶ → ■ · 调 audio.play)
+ * 覆盖 acceptance:
+ * - 渲染 props (name / role / tagline / scenarios)
+ * - onSelect / onEdit 触发 (砍 onSkip)
+ * - 主 TTS player 渲 (intro.tts_audio_url 存在时)
+ * - 主 TTS 不渲 (intro.tts_audio_url 不存在时)
+ * - 主 TTS play 切换 (Play → Pause icon · 调 audio.play)
+ * - scenario mini TTS player 渲 / 不渲 / 点 ▶ 真触发 audio.play
  * - 真按钮 disabled (无 handler 时 disabled · disabled prop 时全禁)
- * - 共享 spec (validateScenarios / pickAvatarText / shouldRenderTts)
+ * - 砍 pricing 真不渲
+ * - 砍 skip 真不渲
+ * - 共享 spec (validateScenarios / pickAvatarText / shouldRenderTts / shouldRenderScenarioTts)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -20,6 +23,7 @@ import {
   validateScenarios,
   pickAvatarText,
   shouldRenderTts,
+  shouldRenderScenarioTts,
   isActionEnabled,
   sampleProps,
 } from '../src/EmployeeCard.behavior'
@@ -28,7 +32,6 @@ function makeProps(overrides: Partial<EmployeeCardProps> = {}): EmployeeCardProp
   return {
     ...sampleProps,
     onSelect: vi.fn(),
-    onSkip: vi.fn(),
     onEdit: vi.fn(),
     ...overrides,
   }
@@ -44,12 +47,11 @@ beforeEach(() => {
 })
 
 describe('EmployeeCard · 渲染 props', () => {
-  it('渲染 name / role / tagline / pricing', () => {
+  it('渲染 name / role / tagline', () => {
     render(createElement(EmployeeCard, makeProps()))
     expect(screen.getByTestId('employee-card-name')).toHaveTextContent('阿空小研')
     expect(screen.getByTestId('employee-card-role')).toHaveTextContent('user_researcher')
     expect(screen.getByTestId('employee-card-tagline')).toHaveTextContent('真懂消费品 · 真挖真痛')
-    expect(screen.getByTestId('employee-card-pricing')).toHaveTextContent('¥800/月')
   })
 
   it('渲染 1-3 条 scenarios · index 化 testid', () => {
@@ -99,6 +101,11 @@ describe('EmployeeCard · 渲染 props', () => {
     expect(img).not.toBeNull()
     expect(img?.getAttribute('src')).toBe('https://example.com/x.png')
   })
+
+  it('砍 pricing · 真不渲 employee-card-pricing testid', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    expect(screen.queryByTestId('employee-card-pricing')).toBeNull()
+  })
 })
 
 describe('EmployeeCard · 按钮回调', () => {
@@ -109,13 +116,6 @@ describe('EmployeeCard · 按钮回调', () => {
     expect(props.onSelect).toHaveBeenCalledTimes(1)
   })
 
-  it('onSkip 真触发', () => {
-    const props = makeProps()
-    render(createElement(EmployeeCard, props))
-    fireEvent.click(screen.getByTestId('employee-card-skip-btn'))
-    expect(props.onSkip).toHaveBeenCalledTimes(1)
-  })
-
   it('onEdit 真触发', () => {
     const props = makeProps()
     render(createElement(EmployeeCard, props))
@@ -123,15 +123,19 @@ describe('EmployeeCard · 按钮回调', () => {
     expect(props.onEdit).toHaveBeenCalledTimes(1)
   })
 
+  it('砍 skip 按钮 · 真不渲 employee-card-skip-btn', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    expect(screen.queryByTestId('employee-card-skip-btn')).toBeNull()
+  })
+
   it('无 handler · 按钮 disabled', () => {
     render(
       createElement(EmployeeCard, {
         ...sampleProps,
-        // 不提供 onSelect / onSkip / onEdit
+        // 不提供 onSelect / onEdit
       })
     )
     expect(screen.getByTestId('employee-card-select-btn')).toBeDisabled()
-    expect(screen.getByTestId('employee-card-skip-btn')).toBeDisabled()
     expect(screen.getByTestId('employee-card-edit-btn')).toBeDisabled()
   })
 
@@ -139,13 +143,12 @@ describe('EmployeeCard · 按钮回调', () => {
     const props = makeProps({ disabled: true })
     render(createElement(EmployeeCard, props))
     expect(screen.getByTestId('employee-card-select-btn')).toBeDisabled()
-    expect(screen.getByTestId('employee-card-skip-btn')).toBeDisabled()
     expect(screen.getByTestId('employee-card-edit-btn')).toBeDisabled()
     expect(screen.getByTestId('employee-card-tts-play')).toBeDisabled()
   })
 })
 
-describe('EmployeeCard · TTS player', () => {
+describe('EmployeeCard · 主 TTS player', () => {
   it('intro.tts_audio_url 存在 · 真渲 player', () => {
     render(createElement(EmployeeCard, makeProps()))
     expect(screen.getByTestId('employee-card-tts')).toBeInTheDocument()
@@ -173,15 +176,55 @@ describe('EmployeeCard · TTS player', () => {
     expect(screen.queryByTestId('employee-card-tts-play')).toBeNull()
   })
 
-  it('点 ▶ · 真调 audio.play', () => {
+  it('点主 ▶ · 真调 audio.play', () => {
     render(createElement(EmployeeCard, makeProps()))
     const btn = screen.getByTestId('employee-card-tts-play')
     fireEvent.click(btn)
-    // play 已 stub · 至少调 1 次
     const playMock = (HTMLMediaElement.prototype as unknown as {
       play: ReturnType<typeof vi.fn>
     }).play
     expect(playMock).toHaveBeenCalled()
+  })
+
+  it('主 TTS 按钮真渲 SVG icon · 不是 unicode ▶', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    const btn = screen.getByTestId('employee-card-tts-play')
+    // 真渲 lucide Play SVG · 不应包含 unicode "▶" 字符
+    expect(btn.textContent).not.toContain('▶')
+    expect(btn.querySelector('svg')).not.toBeNull()
+  })
+})
+
+describe('EmployeeCard · scenario mini TTS player', () => {
+  it('scenario[0] 有 tts_audio_url · 真渲 mini player', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    expect(screen.getByTestId('employee-card-scenario-0-tts')).toBeInTheDocument()
+    expect(screen.getByTestId('employee-card-scenario-0-tts-play')).toBeInTheDocument()
+  })
+
+  it('scenario[1] / scenario[2] 无 tts_audio_url · 不渲 mini player', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    expect(screen.queryByTestId('employee-card-scenario-1-tts')).toBeNull()
+    expect(screen.queryByTestId('employee-card-scenario-1-tts-play')).toBeNull()
+    expect(screen.queryByTestId('employee-card-scenario-2-tts')).toBeNull()
+  })
+
+  it('点 mini ▶ · 真调 audio.play', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    const playMock = (HTMLMediaElement.prototype as unknown as {
+      play: ReturnType<typeof vi.fn>
+    }).play
+    playMock.mockClear?.()
+    const btn = screen.getByTestId('employee-card-scenario-0-tts-play')
+    fireEvent.click(btn)
+    expect(playMock).toHaveBeenCalled()
+  })
+
+  it('mini player 按钮真渲 SVG icon · 不是 unicode ▶', () => {
+    render(createElement(EmployeeCard, makeProps()))
+    const btn = screen.getByTestId('employee-card-scenario-0-tts-play')
+    expect(btn.textContent).not.toContain('▶')
+    expect(btn.querySelector('svg')).not.toBeNull()
   })
 })
 
@@ -236,6 +279,11 @@ describe('behavior spec · 跨端共用', () => {
     expect(
       shouldRenderTts({ slug: 'x', name: 'n', role: 'r', tagline: 't' })
     ).toBe(false)
+  })
+  it('shouldRenderScenarioTts · url 存在 / 不存在', () => {
+    expect(shouldRenderScenarioTts({ title: 't', tts_audio_url: 'https://x' })).toBe(true)
+    expect(shouldRenderScenarioTts({ title: 't' })).toBe(false)
+    expect(shouldRenderScenarioTts({ title: 't', tts_audio_url: '' })).toBe(false)
   })
   it('isActionEnabled · disabled 时 ko', () => {
     expect(isActionEnabled(() => {}, false)).toBe(true)

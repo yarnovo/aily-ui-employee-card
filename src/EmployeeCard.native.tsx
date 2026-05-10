@@ -11,16 +11,19 @@
 import { useState } from 'react'
 import { Image, Pressable, Text, View, useColorScheme } from 'react-native'
 import { tokens } from '@aily-ui/tokens'
-import type { EmployeeCardProps } from './EmployeeCard.types'
-import { pickAvatarText, shouldRenderTts } from './EmployeeCard.behavior'
+import { Play, Pause } from '@aily-ui/icons'
+import type { EmployeeCardProps, EmployeeCardScenario } from './EmployeeCard.types'
+import {
+  pickAvatarText,
+  shouldRenderTts,
+  shouldRenderScenarioTts,
+} from './EmployeeCard.behavior'
 
 export function EmployeeCard(props: EmployeeCardProps) {
   const {
     intro,
     scenarios,
-    pricing_hint,
     onSelect,
-    onSkip,
     onEdit,
     disabled = false,
   } = props
@@ -127,7 +130,9 @@ export function EmployeeCard(props: EmployeeCardProps) {
               opacity: disabled ? 0.5 : 1,
             }}
           >
-            <Text style={{ color: t.fgInverse, fontSize: 14 }}>{playing ? '■' : '▶'}</Text>
+            {playing
+              ? <Pause size={20} color={t.fgInverse} />
+              : <Play size={20} color={t.fgInverse} />}
           </Pressable>
           <View style={{ flex: 1, height: 4, backgroundColor: t.borderSubtle ?? t.border, borderRadius: 9999 }} />
           <Text style={{ fontSize: 12, color: t.fgMuted, minWidth: 60, textAlign: 'right' }}>
@@ -140,8 +145,11 @@ export function EmployeeCard(props: EmployeeCardProps) {
       <View>
         <Text style={{ fontSize: 12, color: t.fgMuted, marginBottom: 4 }}>真过往案例</Text>
         <View style={{ gap: 6 }}>
-          {scenarios.map((sc, i) => (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          {scenarios.map((sc: EmployeeCardScenario, i: number) => (
+            <View
+              key={i}
+              style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}
+            >
               <Text style={{ color: t.fgMuted, fontWeight: '600' }}>✓</Text>
               <Text style={{ flex: 1, fontSize: 14, color: t.fg, lineHeight: 20 }}>
                 {sc.title}
@@ -149,23 +157,29 @@ export function EmployeeCard(props: EmployeeCardProps) {
                   <Text style={{ fontSize: 12, color: t.fgMuted }}> — {sc.bdd}</Text>
                 ) : null}
               </Text>
+              {shouldRenderScenarioTts(sc) ? (
+                <Pressable
+                  onPress={() => !disabled && undefined /* RN 真播交上层 */}
+                  disabled={disabled}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 9999,
+                    backgroundColor: t.fg,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: disabled ? 0.5 : 1,
+                  }}
+                >
+                  <Play size={14} color={t.fgInverse} />
+                </Pressable>
+              ) : null}
             </View>
           ))}
         </View>
       </View>
 
-      {/* pricing */}
-      <View
-        style={{
-          padding: 10,
-          backgroundColor: t.bgSubtle ?? t.bg,
-          borderRadius: tokens.radius.md,
-        }}
-      >
-        <Text style={{ fontSize: 14, color: t.fg, fontWeight: '500' }}>{pricing_hint}</Text>
-      </View>
-
-      {/* actions */}
+      {/* actions · 选 / 改 (砍跳过) */}
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <Pressable
           onPress={onSelect}
@@ -173,13 +187,6 @@ export function EmployeeCard(props: EmployeeCardProps) {
           style={[btnPrimary, { opacity: disabled || !onSelect ? 0.5 : 1 }]}
         >
           <Text style={{ color: t.fgInverse, fontSize: 14, fontWeight: '500' }}>选这个</Text>
-        </Pressable>
-        <Pressable
-          onPress={onSkip}
-          disabled={disabled || !onSkip}
-          style={[btnBase, { opacity: disabled || !onSkip ? 0.5 : 1 }]}
-        >
-          <Text style={{ color: t.fg, fontSize: 14, fontWeight: '500' }}>跳过</Text>
         </Pressable>
         <Pressable
           onPress={onEdit}
