@@ -5,6 +5,7 @@ import {
   pickAvatarText,
   shouldRenderTts,
   shouldRenderScenarioTts,
+  shouldRenderPromises,
 } from './EmployeeCard.behavior'
 import './EmployeeCard.css'
 
@@ -20,7 +21,7 @@ function formatSec(s: number): string {
  *
  * 跟主 TTS player 同行为 · 但更小:
  * - 14px Play / Pause icon (不带进度 + 不带秒数)
- * - 跟 scenario text 真同行 · 内联在 ✓ + 文本旁
+ * - 跟 scenario quote 真同行 · 内联在 quote 末尾
  */
 function ScenarioTtsPlayer(props: {
   url: string
@@ -82,16 +83,27 @@ function ScenarioTtsPlayer(props: {
   )
 }
 
-/** akong EmployeeCard · Web · agent 员工求职简历卡片
+/** akong EmployeeCard · Web · agent 员工求职简历卡片 (UX A 版)
  *
  * 视觉:
- *   ┌──┐  阿空小研 · user_researcher
- *   │研│  真懂消费品 · 真挖真痛
- *   └──┘  [▶ icon] 0:00 / 0:30
- *   真过往案例:
- *   ✓ 真聊 30 个真用户 · 真给 5 条真洞察 [▶]
- *   ✓ 真按 Mom Test · 不堆 ChatGPT 套话
- *   [选这个] [改改]
+ *   ┌──────────────────────────────────────┐
+ *   │ 头像  阿空小研 · user_researcher      │
+ *   │       "你 12h 聊 12 用户挖 2 洞察 ·   │
+ *   │        我帮你只挖 5 条" (访谈原话)    │
+ *   │                                       │
+ *   │  [▶] ━━━━━ 0:30           听我自介  │
+ *   │ ─────────────────────────────────────│
+ *   │  上次帮美妆 DTC                       │
+ *   │  "聊 30 用户 · 挖 5 条洞察"  [▶]     │
+ *   │                                       │
+ *   │  按 Mom Test                          │
+ *   │  "不堆 ChatGPT 套话 · 不诱导"        │
+ *   │                                       │
+ *   │  我不做                               │
+ *   │  "不写周报 · 不画 PPT · 不替你拍板"  │
+ *   │ ─────────────────────────────────────│
+ *   │  [先聊 5 分钟]   [选 ta]              │
+ *   └──────────────────────────────────────┘
  *
  * data-testid 全 (e2e 真用):
  *   - employee-card (root · 默认 · 可 props 覆盖)
@@ -100,16 +112,22 @@ function ScenarioTtsPlayer(props: {
  *   - employee-card-tts-play  (主 ▶ icon 按钮)
  *   - employee-card-tts-time
  *   - employee-card-scenario-{i}  (i: 0/1/2)
+ *   - employee-card-scenario-{i}-title
+ *   - employee-card-scenario-{i}-quote
  *   - employee-card-scenario-{i}-tts (整段 mini player wrapper · 有 url 才存)
  *   - employee-card-scenario-{i}-tts-play (mini ▶ icon 按钮)
- *   - employee-card-select-btn / employee-card-edit-btn
+ *   - employee-card-promises (整段 wrapper · 有 promises 才渲)
+ *   - employee-card-promises-quote
+ *   - employee-card-try-btn  (副按钮 [先聊 5 分钟])
+ *   - employee-card-select-btn (主按钮 [选 ta])
  */
 export function EmployeeCard(props: EmployeeCardProps) {
   const {
     intro,
     scenarios,
+    promises,
     onSelect,
-    onEdit,
+    onTry,
     disabled = false,
     className,
     'data-testid': testId = 'employee-card',
@@ -163,6 +181,7 @@ export function EmployeeCard(props: EmployeeCardProps) {
   }
 
   const renderTts = shouldRenderTts(intro)
+  const renderPromises = shouldRenderPromises(promises)
   const avatarText = pickAvatarText(intro)
   const progressPct = duration > 0 ? Math.min(100, (current / duration) * 100) : 0
 
@@ -186,8 +205,11 @@ export function EmployeeCard(props: EmployeeCardProps) {
               · {intro.role}
             </span>
           </h3>
-          <p className="ak-employee-card__tagline" data-testid="employee-card-tagline">
-            {intro.tagline}
+          <p
+            className="ak-employee-card__tagline"
+            data-testid="employee-card-tagline"
+          >
+            &ldquo;{intro.tagline}&rdquo;
           </p>
         </div>
       </div>
@@ -214,24 +236,31 @@ export function EmployeeCard(props: EmployeeCardProps) {
           <span className="ak-employee-card__tts-time" data-testid="employee-card-tts-time">
             {formatSec(current)} / {formatSec(duration)}
           </span>
+          <span className="ak-employee-card__tts-label" aria-hidden="true">
+            听我自介
+          </span>
         </div>
       )}
 
-      <div>
-        <p className="ak-employee-card__section-title">真过往案例</p>
-        <ul className="ak-employee-card__scenarios">
-          {scenarios.map((sc: EmployeeCardScenario, i: number) => (
-            <li
-              key={i}
-              className="ak-employee-card__scenario"
-              data-testid={`employee-card-scenario-${i}`}
+      <div className="ak-employee-card__scenarios" data-testid="employee-card-scenarios">
+        {scenarios.map((sc: EmployeeCardScenario, i: number) => (
+          <div
+            key={i}
+            className="ak-employee-card__scenario"
+            data-testid={`employee-card-scenario-${i}`}
+          >
+            <p
+              className="ak-employee-card__scenario-title"
+              data-testid={`employee-card-scenario-${i}-title`}
             >
-              <span className="ak-employee-card__scenario-check">✓</span>
-              <span className="ak-employee-card__scenario-text">
-                {sc.title}
-                {sc.bdd && (
-                  <span className="ak-employee-card__scenario-bdd"> — {sc.bdd}</span>
-                )}
+              {sc.title}
+            </p>
+            <p
+              className="ak-employee-card__scenario-quote"
+              data-testid={`employee-card-scenario-${i}-quote`}
+            >
+              <span className="ak-employee-card__scenario-quote-text">
+                &ldquo;{sc.quote}&rdquo;
               </span>
               {shouldRenderScenarioTts(sc) && (
                 <ScenarioTtsPlayer
@@ -240,12 +269,38 @@ export function EmployeeCard(props: EmployeeCardProps) {
                   disabled={disabled}
                 />
               )}
-            </li>
-          ))}
-        </ul>
+            </p>
+          </div>
+        ))}
       </div>
 
+      {renderPromises && (
+        <div
+          className="ak-employee-card__promises"
+          data-testid="employee-card-promises"
+        >
+          <p className="ak-employee-card__scenario-title">我不做</p>
+          <p
+            className="ak-employee-card__scenario-quote"
+            data-testid="employee-card-promises-quote"
+          >
+            <span className="ak-employee-card__scenario-quote-text">
+              &ldquo;{promises!.filter((p) => p && p.length > 0).join(' · ')}&rdquo;
+            </span>
+          </p>
+        </div>
+      )}
+
       <div className="ak-employee-card__actions">
+        <button
+          type="button"
+          className="ak-employee-card__btn"
+          onClick={onTry}
+          disabled={disabled || !onTry}
+          data-testid="employee-card-try-btn"
+        >
+          先聊 5 分钟
+        </button>
         <button
           type="button"
           className="ak-employee-card__btn ak-employee-card__btn--primary"
@@ -253,16 +308,7 @@ export function EmployeeCard(props: EmployeeCardProps) {
           disabled={disabled || !onSelect}
           data-testid="employee-card-select-btn"
         >
-          选这个
-        </button>
-        <button
-          type="button"
-          className="ak-employee-card__btn"
-          onClick={onEdit}
-          disabled={disabled || !onEdit}
-          data-testid="employee-card-edit-btn"
-        >
-          改改
+          选 ta
         </button>
       </div>
     </div>

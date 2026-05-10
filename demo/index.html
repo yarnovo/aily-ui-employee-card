@@ -6,6 +6,7 @@
 <title>aily-ui EmployeeCard · demo</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yarnovo/aily-ui-tokens@main/src/tokens.css?v=20260510" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yarnovo/aily-ui-tokens@main/src/tokens.dark.css?v=20260510" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yarnovo/aily-ui-chat-bubble@main/src/ChatBubble.css?v=20260510" />
 <link rel="stylesheet" href="../src/EmployeeCard.css" />
 <style>
   body {
@@ -56,7 +57,7 @@
     z-index: 100;
   }
 
-  /* ── chat-mock 集成预览样式 (跟 @aily-ui/chat-bubble 同款) ── */
+  /* ── chat-mock · 真接 @aily-ui/chat-bubble 组件 (不再 mock) ── */
   .chat-mock {
     max-width: 480px;
     margin: 0 auto;
@@ -65,34 +66,13 @@
     border-radius: var(--ak-radius-lg);
     border: 1px solid var(--ak-border-subtle, var(--ak-border));
   }
-  .bubble {
-    max-width: 80%;
-    margin: 8px 0;
-    padding: 10px 14px;
-    border-radius: var(--ak-radius-lg);
-    font-size: var(--ak-text-sm);
-    line-height: 1.45;
-    word-wrap: break-word;
-  }
-  .bubble.user {
-    margin-left: auto;
-    background: var(--ak-accent, var(--ak-fg));
-    color: var(--ak-fg-inverse, var(--ak-bg));
-  }
-  .bubble.assistant {
-    margin-right: auto;
-    background: var(--ak-bg-elevated);
-    color: var(--ak-fg);
-    border: 1px solid var(--ak-border-subtle, var(--ak-border));
-  }
-  .bubble.card-bubble {
-    padding: 0;
-    background: transparent;
-    border: 0;
+  /* assistant 气泡里嵌 EmployeeCard 时的 main 列样式 ·
+     借 ChatBubble row + avatar 真渲 · 但 main 不画 bubble bg · 让 card 自渲 */
+  .ak-chat-bubble-row--card .ak-chat-bubble__main {
     max-width: 100%;
-    margin: 12px 0;
+    flex: 1;
   }
-  .bubble.card-bubble .ak-employee-card {
+  .ak-chat-bubble-row--card .ak-employee-card {
     max-width: 100%;
   }
 </style>
@@ -106,41 +86,66 @@
       ← 回 <a href="https://yarnovo.github.io/aily-ui-core/" style="color: var(--ak-fg)">aily-ui design system</a> 总站
     </p>
 
-    <h2>3 候选员工 (interviewer 真挑选场景)</h2>
+    <h2>3 候选员工 (interviewer 真挑选场景 · A 版)</h2>
     <div class="demo-grid">
-      <!-- 候选 1 · 阿空小研 (用户访谈) · scenario[0] 真带 mini TTS · scenario[1/2] 不带 -->
+
+      <!-- 候选 1 · 阿空小研 · 主 TTS + scenario[0] mini TTS + promises -->
       <div class="ak-employee-card" data-testid="employee-card">
         <div class="ak-employee-card__header">
-          <div class="ak-employee-card__avatar"><span>研</span></div>
+          <div class="ak-employee-card__avatar" data-testid="employee-card-avatar"><span>研</span></div>
           <div class="ak-employee-card__heading">
             <h3 class="ak-employee-card__name">
-              <span>阿空小研</span><span class="ak-employee-card__role"> · user_researcher</span>
+              <span data-testid="employee-card-name">阿空小研</span><span class="ak-employee-card__role" data-testid="employee-card-role"> · user_researcher</span>
             </h3>
-            <p class="ak-employee-card__tagline">真懂消费品 · 真挖真痛</p>
+            <p class="ak-employee-card__tagline" data-testid="employee-card-tagline">&ldquo;你 12h 聊 12 用户挖 2 洞察 · 我帮你只挖 5 条&rdquo;</p>
           </div>
         </div>
-        <div class="ak-employee-card__tts">
-          <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
+        <div class="ak-employee-card__tts" data-testid="employee-card-tts">
+          <button type="button" class="ak-employee-card__tts-btn" data-testid="employee-card-tts-play" aria-label="播放自介音频">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
           </button>
           <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
-          <span class="ak-employee-card__tts-time">0:00 / 0:30</span>
+          <span class="ak-employee-card__tts-time" data-testid="employee-card-tts-time">0:00 / 0:30</span>
+          <span class="ak-employee-card__tts-label">听我自介</span>
         </div>
-        <div>
-          <p class="ak-employee-card__section-title">真过往案例</p>
-          <ul class="ak-employee-card__scenarios">
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真聊 30 个真用户 · 真给 5 条真洞察</span><span class="ak-employee-card__scenario-tts"><button type="button" class="ak-employee-card__scenario-tts-btn" aria-label="播放案例音频"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg></button></span></li>
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真按 Mom Test · 不堆 ChatGPT 套话</span></li>
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真情绪 capture · sigh / curse 都记</span></li>
-          </ul>
+        <div class="ak-employee-card__scenarios" data-testid="employee-card-scenarios">
+          <div class="ak-employee-card__scenario" data-testid="employee-card-scenario-0">
+            <p class="ak-employee-card__scenario-title" data-testid="employee-card-scenario-0-title">上次帮美妆 DTC</p>
+            <p class="ak-employee-card__scenario-quote" data-testid="employee-card-scenario-0-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;聊 30 用户 · 挖 5 条洞察&rdquo;</span>
+              <span class="ak-employee-card__scenario-tts" data-testid="employee-card-scenario-0-tts">
+                <button type="button" class="ak-employee-card__scenario-tts-btn" aria-label="播放案例音频">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                </button>
+              </span>
+            </p>
+          </div>
+          <div class="ak-employee-card__scenario" data-testid="employee-card-scenario-1">
+            <p class="ak-employee-card__scenario-title" data-testid="employee-card-scenario-1-title">按 Mom Test</p>
+            <p class="ak-employee-card__scenario-quote" data-testid="employee-card-scenario-1-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;不堆 ChatGPT 套话 · 不诱导&rdquo;</span>
+            </p>
+          </div>
+          <div class="ak-employee-card__scenario" data-testid="employee-card-scenario-2">
+            <p class="ak-employee-card__scenario-title" data-testid="employee-card-scenario-2-title">真情绪 capture</p>
+            <p class="ak-employee-card__scenario-quote" data-testid="employee-card-scenario-2-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;sigh / curse 都记 · 真听细节&rdquo;</span>
+            </p>
+          </div>
+        </div>
+        <div class="ak-employee-card__promises" data-testid="employee-card-promises">
+          <p class="ak-employee-card__scenario-title">我不做</p>
+          <p class="ak-employee-card__scenario-quote" data-testid="employee-card-promises-quote">
+            <span class="ak-employee-card__scenario-quote-text">&ldquo;不写周报 · 不画 PPT · 不替你拍板&rdquo;</span>
+          </p>
         </div>
         <div class="ak-employee-card__actions">
-          <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选这个</button>
-          <button type="button" class="ak-employee-card__btn">改改</button>
+          <button type="button" class="ak-employee-card__btn" data-testid="employee-card-try-btn">先聊 5 分钟</button>
+          <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary" data-testid="employee-card-select-btn">选 ta</button>
         </div>
       </div>
 
-      <!-- 候选 2 · 阿空小问 · 主 TTS 真在 · 各 scenario 真无 mini TTS (验 fallback 不渲) -->
+      <!-- 候选 2 · 阿空小问 · 主 TTS · 各 scenario 不带 mini · promises 真在 -->
       <div class="ak-employee-card" data-testid="employee-card">
         <div class="ak-employee-card__header">
           <div class="ak-employee-card__avatar"><span>问</span></div>
@@ -148,7 +153,7 @@
             <h3 class="ak-employee-card__name">
               <span>阿空小问</span><span class="ak-employee-card__role"> · interviewer</span>
             </h3>
-            <p class="ak-employee-card__tagline">真做 30 分钟深访 · 真不让用户填问卷</p>
+            <p class="ak-employee-card__tagline">&ldquo;问卷只能给你套话 · 我做 30 分钟深访&rdquo;</p>
           </div>
         </div>
         <div class="ak-employee-card__tts">
@@ -157,21 +162,35 @@
           </button>
           <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:35%"></div></div>
           <span class="ak-employee-card__tts-time">0:11 / 0:32</span>
+          <span class="ak-employee-card__tts-label">听我自介</span>
         </div>
-        <div>
-          <p class="ak-employee-card__section-title">真过往案例</p>
-          <ul class="ak-employee-card__scenarios">
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">访谈 12 美妆 DTC 创业者 · WTP ¥500-2000<span class="ak-employee-card__scenario-bdd"> — 真挖真痛点 + 真报价</span></span></li>
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真追问 follow-up · 不止于第一答</span></li>
-          </ul>
+        <div class="ak-employee-card__scenarios">
+          <div class="ak-employee-card__scenario">
+            <p class="ak-employee-card__scenario-title">上次访谈美妆 DTC</p>
+            <p class="ak-employee-card__scenario-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;12 创业者 · WTP ¥500-2000&rdquo;</span>
+            </p>
+          </div>
+          <div class="ak-employee-card__scenario">
+            <p class="ak-employee-card__scenario-title">真追问 follow-up</p>
+            <p class="ak-employee-card__scenario-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;不止于第一答 · 真挖到痛&rdquo;</span>
+            </p>
+          </div>
+        </div>
+        <div class="ak-employee-card__promises">
+          <p class="ak-employee-card__scenario-title">我不做</p>
+          <p class="ak-employee-card__scenario-quote">
+            <span class="ak-employee-card__scenario-quote-text">&ldquo;不发问卷 · 不诱导 · 不假装专业&rdquo;</span>
+          </p>
         </div>
         <div class="ak-employee-card__actions">
-          <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选这个</button>
-          <button type="button" class="ak-employee-card__btn">改改</button>
+          <button type="button" class="ak-employee-card__btn">先聊 5 分钟</button>
+          <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选 ta</button>
         </div>
       </div>
 
-      <!-- 候选 3 · 阿空大研 (B 端 · disabled · 已选演示) -->
+      <!-- 候选 3 · 阿空大研 · disabled (已选演示) · 无 promises (验 fallback 不渲) -->
       <div class="ak-employee-card" data-testid="employee-card">
         <div class="ak-employee-card__header">
           <div class="ak-employee-card__avatar"><span>大</span></div>
@@ -179,142 +198,236 @@
             <h3 class="ak-employee-card__name">
               <span>阿空大研</span><span class="ak-employee-card__role"> · senior_researcher</span>
             </h3>
-            <p class="ak-employee-card__tagline">真做 B 端定制 · 真按周交付报告</p>
+            <p class="ak-employee-card__tagline">&ldquo;B 端 SaaS · 按周交付报告&rdquo;</p>
           </div>
         </div>
-        <div>
-          <p class="ak-employee-card__section-title">真过往案例</p>
-          <ul class="ak-employee-card__scenarios">
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真给 SaaS 公司做用户分群 + 真报告</span></li>
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真接 GPT-5 · 真分析真情绪曲线</span></li>
-            <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真带 mentor 1on1 · 老板真审</span></li>
-          </ul>
+        <div class="ak-employee-card__scenarios">
+          <div class="ak-employee-card__scenario">
+            <p class="ak-employee-card__scenario-title">SaaS 公司用户分群</p>
+            <p class="ak-employee-card__scenario-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;真给 cohort 报告 + 真分析&rdquo;</span>
+            </p>
+          </div>
+          <div class="ak-employee-card__scenario">
+            <p class="ak-employee-card__scenario-title">真接 GPT-5</p>
+            <p class="ak-employee-card__scenario-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;真分析真情绪曲线&rdquo;</span>
+            </p>
+          </div>
+          <div class="ak-employee-card__scenario">
+            <p class="ak-employee-card__scenario-title">真带 mentor 1on1</p>
+            <p class="ak-employee-card__scenario-quote">
+              <span class="ak-employee-card__scenario-quote-text">&ldquo;老板真审 · 真审完发版&rdquo;</span>
+            </p>
+          </div>
         </div>
         <div class="ak-employee-card__actions">
-          <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary" disabled>选这个</button>
-          <button type="button" class="ak-employee-card__btn" disabled>改改</button>
+          <button type="button" class="ak-employee-card__btn" disabled>先聊 5 分钟</button>
+          <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary" disabled>选 ta</button>
         </div>
       </div>
     </div>
 
-    <h2>集成到 ChatPage (真 m.interviewer 真预览)</h2>
+    <h2>集成到 ChatPage (真 m.interviewer 真预览 · 接 @aily-ui/chat-bubble)</h2>
     <p class="lead">
       真模拟 m.interviewer 真聊天流 · agent 气泡里真嵌 EmployeeCard 候选 · 真用户真选完闭单。
     </p>
     <div class="chat-mock">
-      <!-- user 气泡 -->
-      <div class="bubble user">我做美妆 DTC · 真烧时间真聊用户挖痛点</div>
+      <!-- user 气泡 · @aily-ui/chat-bubble 真 markup -->
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--user" data-role="user">
+        <div class="ak-chat-bubble__main">
+          <div class="ak-chat-bubble ak-chat-bubble--user ak-chat-bubble--text">
+            <span class="ak-chat-bubble__text">我做美妆 DTC · 真烧时间真聊用户挖痛点</span>
+          </div>
+        </div>
+      </div>
 
       <!-- agent 气泡 · 引导 -->
-      <div class="bubble assistant">
-        我懂你的痛 · 12 小时挖 2 洞察真不划算。我真给你挑了 3 位员工真合适做这事 · 你看看哪个真喜欢:
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--assistant" data-role="assistant">
+        <div class="ak-chat-bubble__avatar-slot">
+          <div class="ak-chat-bubble__avatar ak-chat-bubble__avatar--placeholder"></div>
+        </div>
+        <div class="ak-chat-bubble__main">
+          <div class="ak-chat-bubble ak-chat-bubble--assistant ak-chat-bubble--text">
+            <span class="ak-chat-bubble__text">我懂你的痛 · 12 小时挖 2 洞察真不划算。我真给你挑了 3 位员工真合适做这事 · 你看看哪个真喜欢:</span>
+          </div>
+        </div>
       </div>
 
       <!-- agent 气泡 · 嵌 EmployeeCard 候选 1 -->
-      <div class="bubble assistant card-bubble">
-        <div class="ak-employee-card" data-testid="employee-card">
-          <div class="ak-employee-card__header">
-            <div class="ak-employee-card__avatar"><span>研</span></div>
-            <div class="ak-employee-card__heading">
-              <h3 class="ak-employee-card__name">
-                <span>阿空小研</span><span class="ak-employee-card__role"> · user_researcher</span>
-              </h3>
-              <p class="ak-employee-card__tagline">真懂消费品 · 真挖真痛</p>
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--assistant ak-chat-bubble-row--card" data-role="assistant">
+        <div class="ak-chat-bubble__avatar-slot">
+          <div class="ak-chat-bubble__avatar ak-chat-bubble__avatar--placeholder"></div>
+        </div>
+        <div class="ak-chat-bubble__main">
+          <div class="ak-employee-card" data-testid="employee-card">
+            <div class="ak-employee-card__header">
+              <div class="ak-employee-card__avatar"><span>研</span></div>
+              <div class="ak-employee-card__heading">
+                <h3 class="ak-employee-card__name">
+                  <span>阿空小研</span><span class="ak-employee-card__role"> · user_researcher</span>
+                </h3>
+                <p class="ak-employee-card__tagline">&ldquo;你 12h 聊 12 用户挖 2 洞察 · 我帮你只挖 5 条&rdquo;</p>
+              </div>
             </div>
-          </div>
-          <div class="ak-employee-card__tts">
-            <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-            </button>
-            <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
-            <span class="ak-employee-card__tts-time">0:00 / 0:30</span>
-          </div>
-          <div>
-            <p class="ak-employee-card__section-title">真过往案例</p>
-            <ul class="ak-employee-card__scenarios">
-              <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真聊 30 个真用户</span><span class="ak-employee-card__scenario-tts"><button type="button" class="ak-employee-card__scenario-tts-btn" aria-label="播放案例音频"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg></button></span></li>
-              <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真按 Mom Test · 不堆套话</span></li>
-            </ul>
-          </div>
-          <div class="ak-employee-card__actions">
-            <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选这个</button>
-            <button type="button" class="ak-employee-card__btn">改改</button>
+            <div class="ak-employee-card__tts">
+              <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+              </button>
+              <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
+              <span class="ak-employee-card__tts-time">0:00 / 0:30</span>
+              <span class="ak-employee-card__tts-label">听我自介</span>
+            </div>
+            <div class="ak-employee-card__scenarios">
+              <div class="ak-employee-card__scenario">
+                <p class="ak-employee-card__scenario-title">上次帮美妆 DTC</p>
+                <p class="ak-employee-card__scenario-quote">
+                  <span class="ak-employee-card__scenario-quote-text">&ldquo;聊 30 用户 · 挖 5 条洞察&rdquo;</span>
+                  <span class="ak-employee-card__scenario-tts">
+                    <button type="button" class="ak-employee-card__scenario-tts-btn" aria-label="播放案例音频">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                    </button>
+                  </span>
+                </p>
+              </div>
+              <div class="ak-employee-card__scenario">
+                <p class="ak-employee-card__scenario-title">按 Mom Test</p>
+                <p class="ak-employee-card__scenario-quote">
+                  <span class="ak-employee-card__scenario-quote-text">&ldquo;不堆 ChatGPT 套话 · 不诱导&rdquo;</span>
+                </p>
+              </div>
+            </div>
+            <div class="ak-employee-card__promises">
+              <p class="ak-employee-card__scenario-title">我不做</p>
+              <p class="ak-employee-card__scenario-quote">
+                <span class="ak-employee-card__scenario-quote-text">&ldquo;不写周报 · 不画 PPT · 不替你拍板&rdquo;</span>
+              </p>
+            </div>
+            <div class="ak-employee-card__actions">
+              <button type="button" class="ak-employee-card__btn">先聊 5 分钟</button>
+              <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选 ta</button>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- agent 气泡 · 嵌 EmployeeCard 候选 2 -->
-      <div class="bubble assistant card-bubble">
-        <div class="ak-employee-card" data-testid="employee-card">
-          <div class="ak-employee-card__header">
-            <div class="ak-employee-card__avatar"><span>问</span></div>
-            <div class="ak-employee-card__heading">
-              <h3 class="ak-employee-card__name">
-                <span>阿空小问 v2</span><span class="ak-employee-card__role"> · interviewer</span>
-              </h3>
-              <p class="ak-employee-card__tagline">真做 30 分钟深访 · 真不让用户填问卷</p>
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--assistant ak-chat-bubble-row--card" data-role="assistant">
+        <div class="ak-chat-bubble__avatar-slot">
+          <div class="ak-chat-bubble__avatar ak-chat-bubble__avatar--placeholder"></div>
+        </div>
+        <div class="ak-chat-bubble__main">
+          <div class="ak-employee-card" data-testid="employee-card">
+            <div class="ak-employee-card__header">
+              <div class="ak-employee-card__avatar"><span>问</span></div>
+              <div class="ak-employee-card__heading">
+                <h3 class="ak-employee-card__name">
+                  <span>阿空小问</span><span class="ak-employee-card__role"> · interviewer</span>
+                </h3>
+                <p class="ak-employee-card__tagline">&ldquo;问卷只能给你套话 · 我做 30 分钟深访&rdquo;</p>
+              </div>
             </div>
-          </div>
-          <div class="ak-employee-card__tts">
-            <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-            </button>
-            <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
-            <span class="ak-employee-card__tts-time">0:00 / 0:32</span>
-          </div>
-          <div>
-            <p class="ak-employee-card__section-title">真过往案例</p>
-            <ul class="ak-employee-card__scenarios">
-              <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">访谈 12 美妆 DTC · WTP ¥500-2000</span></li>
-              <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真追问 follow-up</span></li>
-            </ul>
-          </div>
-          <div class="ak-employee-card__actions">
-            <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选这个</button>
-            <button type="button" class="ak-employee-card__btn">改改</button>
+            <div class="ak-employee-card__tts">
+              <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+              </button>
+              <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
+              <span class="ak-employee-card__tts-time">0:00 / 0:32</span>
+              <span class="ak-employee-card__tts-label">听我自介</span>
+            </div>
+            <div class="ak-employee-card__scenarios">
+              <div class="ak-employee-card__scenario">
+                <p class="ak-employee-card__scenario-title">访谈美妆 DTC</p>
+                <p class="ak-employee-card__scenario-quote">
+                  <span class="ak-employee-card__scenario-quote-text">&ldquo;12 创业者 · WTP ¥500-2000&rdquo;</span>
+                </p>
+              </div>
+              <div class="ak-employee-card__scenario">
+                <p class="ak-employee-card__scenario-title">真追问 follow-up</p>
+                <p class="ak-employee-card__scenario-quote">
+                  <span class="ak-employee-card__scenario-quote-text">&ldquo;不止于第一答&rdquo;</span>
+                </p>
+              </div>
+            </div>
+            <div class="ak-employee-card__promises">
+              <p class="ak-employee-card__scenario-title">我不做</p>
+              <p class="ak-employee-card__scenario-quote">
+                <span class="ak-employee-card__scenario-quote-text">&ldquo;不发问卷 · 不诱导 · 不假装专业&rdquo;</span>
+              </p>
+            </div>
+            <div class="ak-employee-card__actions">
+              <button type="button" class="ak-employee-card__btn">先聊 5 分钟</button>
+              <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选 ta</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- agent 气泡 · 嵌 EmployeeCard 候选 3 -->
-      <div class="bubble assistant card-bubble">
-        <div class="ak-employee-card" data-testid="employee-card">
-          <div class="ak-employee-card__header">
-            <div class="ak-employee-card__avatar"><span>数</span></div>
-            <div class="ak-employee-card__heading">
-              <h3 class="ak-employee-card__name">
-                <span>阿空小数</span><span class="ak-employee-card__role"> · data_analyst</span>
-              </h3>
-              <p class="ak-employee-card__tagline">真 data-driven · 真挖真分群</p>
+      <!-- agent 气泡 · 嵌 EmployeeCard 候选 3 (轻 · 无 promises) -->
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--assistant ak-chat-bubble-row--card" data-role="assistant">
+        <div class="ak-chat-bubble__avatar-slot">
+          <div class="ak-chat-bubble__avatar ak-chat-bubble__avatar--placeholder"></div>
+        </div>
+        <div class="ak-chat-bubble__main">
+          <div class="ak-employee-card" data-testid="employee-card">
+            <div class="ak-employee-card__header">
+              <div class="ak-employee-card__avatar"><span>数</span></div>
+              <div class="ak-employee-card__heading">
+                <h3 class="ak-employee-card__name">
+                  <span>阿空小数</span><span class="ak-employee-card__role"> · data_analyst</span>
+                </h3>
+                <p class="ak-employee-card__tagline">&ldquo;只看数据不揣测 · 真分群真画 cohort&rdquo;</p>
+              </div>
             </div>
-          </div>
-          <div class="ak-employee-card__tts">
-            <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-            </button>
-            <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
-            <span class="ak-employee-card__tts-time">0:00 / 0:25</span>
-          </div>
-          <div>
-            <p class="ak-employee-card__section-title">真过往案例</p>
-            <ul class="ak-employee-card__scenarios">
-              <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真分群 SaaS 用户 · 真给 cohort 报表</span></li>
-              <li class="ak-employee-card__scenario"><span class="ak-employee-card__scenario-check">✓</span><span class="ak-employee-card__scenario-text">真接 GPT-5 · 真分析情绪曲线</span></li>
-            </ul>
-          </div>
-          <div class="ak-employee-card__actions">
-            <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选这个</button>
-            <button type="button" class="ak-employee-card__btn">改改</button>
+            <div class="ak-employee-card__tts">
+              <button type="button" class="ak-employee-card__tts-btn" aria-label="播放自介音频">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+              </button>
+              <div class="ak-employee-card__tts-progress"><div class="ak-employee-card__tts-bar" style="width:0%"></div></div>
+              <span class="ak-employee-card__tts-time">0:00 / 0:25</span>
+              <span class="ak-employee-card__tts-label">听我自介</span>
+            </div>
+            <div class="ak-employee-card__scenarios">
+              <div class="ak-employee-card__scenario">
+                <p class="ak-employee-card__scenario-title">SaaS 用户分群</p>
+                <p class="ak-employee-card__scenario-quote">
+                  <span class="ak-employee-card__scenario-quote-text">&ldquo;真画 cohort 报表&rdquo;</span>
+                </p>
+              </div>
+              <div class="ak-employee-card__scenario">
+                <p class="ak-employee-card__scenario-title">真接 GPT-5</p>
+                <p class="ak-employee-card__scenario-quote">
+                  <span class="ak-employee-card__scenario-quote-text">&ldquo;真分析情绪曲线&rdquo;</span>
+                </p>
+              </div>
+            </div>
+            <div class="ak-employee-card__actions">
+              <button type="button" class="ak-employee-card__btn">先聊 5 分钟</button>
+              <button type="button" class="ak-employee-card__btn ak-employee-card__btn--primary">选 ta</button>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- user 气泡 · 真选完 -->
-      <div class="bubble user">选阿空小研 · 月费 ¥800 我可以</div>
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--user" data-role="user">
+        <div class="ak-chat-bubble__main">
+          <div class="ak-chat-bubble ak-chat-bubble--user ak-chat-bubble--text">
+            <span class="ak-chat-bubble__text">选阿空小研 · 月费 ¥800 我可以</span>
+          </div>
+        </div>
+      </div>
 
       <!-- agent 气泡 · 真闭单 -->
-      <div class="bubble assistant">
-        收到 · 老板真审完 · 我真发短信通知你阿空小研真上岗。
+      <div class="ak-chat-bubble-row ak-chat-bubble-row--assistant" data-role="assistant">
+        <div class="ak-chat-bubble__avatar-slot">
+          <div class="ak-chat-bubble__avatar ak-chat-bubble__avatar--placeholder"></div>
+        </div>
+        <div class="ak-chat-bubble__main">
+          <div class="ak-chat-bubble ak-chat-bubble--assistant ak-chat-bubble--text">
+            <span class="ak-chat-bubble__text">收到 · 老板真审完 · 我真发短信通知你阿空小研真上岗。</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

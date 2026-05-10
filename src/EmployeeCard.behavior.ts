@@ -40,6 +40,12 @@ export function shouldRenderScenarioTts(scenario: EmployeeCardScenario): boolean
   return !!scenario.tts_audio_url && scenario.tts_audio_url.length > 0
 }
 
+/** promises 段是否真渲 · 数组存在 + 至少 1 条非空才渲 */
+export function shouldRenderPromises(promises?: string[]): boolean {
+  if (!promises) return false
+  return promises.some((p) => p && p.length > 0)
+}
+
 /** 按钮可用性 · disabled prop + handler 是否提供 */
 export function isActionEnabled(
   handler: (() => void) | undefined,
@@ -48,22 +54,30 @@ export function isActionEnabled(
   return !!handler && !disabled
 }
 
-/** 测试 fixture · 标准案例 */
+/** 测试 fixture · 标准案例 (A 版 quote 风) */
 export const sampleProps: EmployeeCardProps = {
   intro: {
     slug: 'xiaoyan',
     name: '阿空小研',
     role: 'user_researcher',
-    tagline: '真懂消费品 · 真挖真痛',
+    tagline: '你 12h 聊 12 用户挖 2 洞察 · 我帮你只挖 5 条',
     avatar_text: '研',
     tts_audio_url: 'https://example.com/xiaoyan-intro.mp3',
   },
   scenarios: [
     {
-      title: '真聊 30 个真用户 · 真给 5 条真洞察',
+      title: '上次帮美妆 DTC',
+      quote: '聊 30 用户 · 挖 5 条洞察',
       tts_audio_url: 'https://example.com/xiaoyan-scenario-0.mp3',
     },
-    { title: '真按 Mom Test · 不堆 ChatGPT 套话' },
-    { title: '真情绪 capture · sigh / curse 都记' },
+    {
+      title: '按 Mom Test',
+      quote: '不堆 ChatGPT 套话 · 不诱导',
+    },
+    {
+      title: '真情绪 capture',
+      quote: 'sigh / curse 都记 · 真听细节',
+    },
   ],
+  promises: ['不写周报', '不画 PPT', '不替你拍板'],
 }
