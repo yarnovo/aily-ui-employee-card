@@ -5,7 +5,7 @@
  * 各端测试 import 跑同一份 spec · 行为强一致。
  */
 
-import type { EmployeeCardProps } from './EmployeeCard.types'
+import type { EmployeeCardProps, EmployeeCardScenario } from './EmployeeCard.types'
 
 /** TTS player 状态 (内部 state · 测试用) */
 export type TtsPlayState = 'idle' | 'playing'
@@ -35,6 +35,11 @@ export function shouldRenderTts(intro: EmployeeCardProps['intro']): boolean {
   return !!intro.tts_audio_url && intro.tts_audio_url.length > 0
 }
 
+/** 单条 scenario mini TTS player 是否真渲 · scenario.tts_audio_url 存在才渲 */
+export function shouldRenderScenarioTts(scenario: EmployeeCardScenario): boolean {
+  return !!scenario.tts_audio_url && scenario.tts_audio_url.length > 0
+}
+
 /** 按钮可用性 · disabled prop + handler 是否提供 */
 export function isActionEnabled(
   handler: (() => void) | undefined,
@@ -54,9 +59,11 @@ export const sampleProps: EmployeeCardProps = {
     tts_audio_url: 'https://example.com/xiaoyan-intro.mp3',
   },
   scenarios: [
-    { title: '真聊 30 个真用户 · 真给 5 条真洞察' },
+    {
+      title: '真聊 30 个真用户 · 真给 5 条真洞察',
+      tts_audio_url: 'https://example.com/xiaoyan-scenario-0.mp3',
+    },
     { title: '真按 Mom Test · 不堆 ChatGPT 套话' },
     { title: '真情绪 capture · sigh / curse 都记' },
   ],
-  pricing_hint: '¥800/月 · 真含 80 真聊',
 }
